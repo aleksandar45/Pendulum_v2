@@ -196,14 +196,13 @@ namespace PendulumApp.ViewModel
             }
         }
 
-        public delegate int DeviceRecordExecute(bool recording);
+        public delegate bool DeviceRecordExecute(bool recording);
         public event DeviceRecordExecute deviceRecordExecute;
 
         public ICommand RecordCommand { get; set; }
         private void RecordExecute(object obj)
-        {
-            int deviceRecordStatus = deviceRecordExecute( Recording);
-            if ((deviceRecordStatus & 0x80) == 0x80)          //check if procedure is executed properly
+        {            
+            if (deviceRecordExecute(Recording))          //check if procedure is executed properly
             {
                 if (Recording)
                 {
@@ -273,7 +272,7 @@ namespace PendulumApp.ViewModel
             }
         }
 
-        public delegate int DeviceCalibrateExecute();
+        public delegate bool DeviceCalibrateExecute();
         public event DeviceCalibrateExecute deviceCalibrateExecute;
         public ICommand CalibrateCommand { get; set; }
         private void CalibrateExecute(object obj)
@@ -287,23 +286,118 @@ namespace PendulumApp.ViewModel
         #endregion
 
         #region CONNECTION LABEL
-        private string _connectionLabelText;
-        public string ConnectionLabelText
-        {
+        private bool _comConnectionStatus = false;
+        public bool COMConnectionStatus {
             get
             {
-                return _connectionLabelText ?? "DISCONNECTED";
+                return _comConnectionStatus;
             }
             set
             {
-                _connectionLabelText = value;
-                OnPropertyChanged("ConnectionLabelText");
+                _comConnectionStatus = value;
+                if (_comConnectionStatus)
+                {
+                    COMConnectionLabelText = "COM: Connected";
+                    COMConnectionLabelColor = Brushes.LawnGreen;
+                }
+                else
+                {
+                    COMConnectionLabelText = "COM: Disconnected";
+                    COMConnectionLabelColor = Brushes.Red;
+                }
+            }
+        }
+        private bool _bleConnectionStatus = false;
+        public bool BLEConnectionStatus
+        {
+            get
+            {
+                return _bleConnectionStatus;
+            }
+            set
+            {
+                _bleConnectionStatus = value;
+                if (_bleConnectionStatus)
+                {
+                    BLEConnectionLabelText = "BLE: Connected";
+                    BLEConnectionLabelColor = Brushes.LawnGreen;
+                }
+                else
+                {
+                    BLEConnectionLabelText = "BLE: Disconnected";
+                    BLEConnectionLabelColor = Brushes.Red;
+                }
+            }
+        }
+
+        private Brush _comConnectionLabelColor = Brushes.Red;
+        public Brush COMConnectionLabelColor
+        {
+            get
+            {
+                return _comConnectionLabelColor;
+            }
+            set
+            {
+                _comConnectionLabelColor = value;
+                OnPropertyChanged("COMConnectionLabelColor");
+            }
+        }
+        private Brush _bleConnectionLabelColor = Brushes.Red;
+        public Brush BLEConnectionLabelColor
+        {
+            get
+            {
+                return _bleConnectionLabelColor;
+            }
+            set
+            {
+                _bleConnectionLabelColor = value;
+                OnPropertyChanged("BLEConnectionLabelColor");
+            }
+        }
+        private string _comConnectionLabelText;
+        public string COMConnectionLabelText
+        {
+            get
+            {
+                return _comConnectionLabelText ?? "COM: Disconnected";
+            }
+            set
+            {
+                _comConnectionLabelText = value;
+                OnPropertyChanged("COMConnectionLabelText");
+            }
+        }
+        private string _bleConnectionLabelText;
+        public string BLEConnectionLabelText
+        {
+            get
+            {
+                return _bleConnectionLabelText ?? "BLE: Disconnected";
+            }
+            set
+            {
+                _bleConnectionLabelText = value;
+                OnPropertyChanged("BLEConnectionLabelText");
             }
         }
         #endregion
 
         #region COMBOBOX_PROFILE
-
+        private bool _comboboxCOMPortsIsEnabled = true;
+        public bool ComboboxCOMPortsIsEnabled
+        {
+            get
+            {
+                return _comboboxCOMPortsIsEnabled;
+            }
+            set
+            {
+                _comboboxCOMPortsIsEnabled = value;
+                OnPropertyChanged("ComboboxCOMPortsIsEnabled");
+            }
+        }
         private List<string> _comboBoxCOMPorts;
         public List<string> ComboBoxCOMPorts
         {
@@ -333,6 +427,73 @@ namespace PendulumApp.ViewModel
         #endregion
 
         #region ACC/EMG STATUSES
+        private bool _accGy0Status = false;
+        public bool AccGy0Status
+        {
+            get
+            {
+                return _accGy0Status;
+            }
+            set
+            {
+                _accGy0Status = value;
+                if (_accGy0Status)
+                {
+                    AccGy0StatusLabelText = "AccGy0 = OK";
+                    AccGy0StatusLabelColor = Brushes.LawnGreen;
+                }
+                else
+                {
+                    AccGy0StatusLabelText = "AccGy0 = FAIL";
+                    AccGy0StatusLabelColor = Brushes.Red;
+                }
+            }
+        }
+        private bool _accGy1Status = false;
+        public bool AccGy1Status
+        {
+            get
+            {
+                return _accGy1Status;
+            }
+            set
+            {
+                _accGy1Status = value;
+                if (_accGy1Status)
+                {
+                    AccGy1StatusLabelText = "AccGy1 = OK";
+                    AccGy1StatusLabelColor = Brushes.LawnGreen;
+                }
+                else
+                {
+                    AccGy1StatusLabelText = "AccGy1 = FAIL";
+                    AccGy1StatusLabelColor = Brushes.Red;
+                }
+            }
+        }
+        private bool _emgStatus = false;
+        public bool EMGStatus
+        {
+            get
+            {
+                return _emgStatus;
+            }
+            set
+            {
+                _emgStatus = value;
+                if (_emgStatus)
+                {
+                    EMGStatusLabelText = "EMG = OK";
+                    EMGStatusLabelColor = Brushes.LawnGreen;
+                }
+                else
+                {
+                    EMGStatusLabelText = "EMG = FAIL";
+                    EMGStatusLabelColor = Brushes.Red;
+                }
+            }
+        }
+
         private Brush _accGy0StatusLabelColor = Brushes.Red;
         public Brush AccGy0StatusLabelColor {
             get
@@ -345,7 +506,6 @@ namespace PendulumApp.ViewModel
                 OnPropertyChanged("AccGy0StatusLabelColor");
             }
         }
-
         private string _accGy0StatusLabelText;
         public string AccGy0StatusLabelText
         {
@@ -359,6 +519,7 @@ namespace PendulumApp.ViewModel
                 OnPropertyChanged("AccGy0StatusLabelText");
             }
         }
+
         private Brush _accGy1StatusLabelColor = Brushes.Red;
         public Brush AccGy1StatusLabelColor
         {
@@ -807,13 +968,13 @@ namespace PendulumApp.ViewModel
         #endregion
 
         #region WINDOW_CLOSING
-        //public event EventHandler WindowClosingEventHandler;
+        public event EventHandler WindowClosingEventHandler;
         public ICommand WindowClosing { get; private set; }
         private void WindowClosingExecute(object obj)
         {
             
             SettingService.StoreSetting(SettingProgramData, SettingEMGData, SettingACCData, SettingGYData);
-            //WindowClosingEventHandler(null, null);
+            WindowClosingEventHandler(null, null);
             OpenGLDispatcher.dispose();
             Log log = new Log();
             log.LogMessageToFile("Program closed!!!");

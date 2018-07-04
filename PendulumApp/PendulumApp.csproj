@@ -83,6 +83,9 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="DeviceModel\Device.cs" />
+    <Compile Include="DeviceModel\RingBufferByte.cs" />
+    <Compile Include="DeviceModel\MSerialPort.cs" />
     <Compile Include="Dialogs\DialogMessage\DialogImageTypeEnum.cs" />
     <Compile Include="Dialogs\DialogMessage\DialogMessageView.xaml.cs">
       <DependentUpon>DialogMessageView.xaml</DependentUpon>
@@ -140,9 +143,7 @@
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="DeviceModel\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Resource Include="Images\Calibrate.png" />
   </ItemGroup>

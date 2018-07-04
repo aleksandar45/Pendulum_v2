@@ -16,6 +16,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using PendulumApp.ViewModel;
 using PendulumApp.ViewModel.OpenGLRender;
+using PendulumApp.DeviceModel;
 using PendulumApp.Settings;
 
 namespace PendulumApp
@@ -25,6 +26,7 @@ namespace PendulumApp
     /// </summary>
     public partial class MainWindow : Window
     {
+        Device device;
         public MainWindow()
         {
             try
@@ -48,6 +50,8 @@ namespace PendulumApp
                 OpenGLDispatcher openGLDispatcherHandler = new OpenGLDispatcher(openGLDisplay1, openGLDisplay2, openGLDisplay3, openGLDisplay4, openGLDisplay5, openGLDisplay6, 2, 2, 3);
                 MainWindowViewModel mainWindowHandler = new MainWindowViewModel(openGLDispatcherHandler, settingProgramDataHandler, settingEMGDataHandler, settingACCDataHandler, settingGYDataHandler);
                 DataContext = mainWindowHandler;
+
+                device = new Device(mainWindowHandler);
             }
             catch (Exception ex)
             {

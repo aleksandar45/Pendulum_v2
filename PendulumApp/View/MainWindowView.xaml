@@ -173,8 +173,11 @@
                     </Button.Content>
                 </Button>
                 <Separator></Separator>
-                <Label  Width="140" Height="40" FontWeight="Bold" Content="{Binding ConnectionLabelText}" FontSize="15" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"  FontStretch="Normal" />
-                <ComboBox  ItemsSource="{Binding ComboBoxCOMPorts}" SelectedItem="{Binding ComboboxSelectedItem}" IsSynchronizedWithCurrentItem="True" Name="comboboxProfile_toolbar" Height="10" Width="150" BorderThickness="1" BorderBrush="Black"  ToolTip="Available COM ports" >
+                <StackPanel>
+                    <Label  Width="150" Height="30" FontWeight="Bold" Content="{Binding COMConnectionLabelText}" Foreground="{Binding COMConnectionLabelColor}" FontSize="14" HorizontalContentAlignment="Left" VerticalContentAlignment="Center"  FontStretch="Normal" />
+                    <Label  Width="150" Height="30" FontWeight="Bold" Content="{Binding BLEConnectionLabelText}" Foreground="{Binding BLEConnectionLabelColor}"  FontSize="14" HorizontalContentAlignment="Left" VerticalContentAlignment="Center"  FontStretch="Normal" />
+                </StackPanel>
+                <ComboBox  ItemsSource="{Binding ComboBoxCOMPorts}" SelectedItem="{Binding ComboboxSelectedItem}" IsEnabled="{Binding ComboboxCOMPortsIsEnabled}" IsSynchronizedWithCurrentItem="True" Name="comboboxProfile_toolbar" Height="10" Width="150" BorderThickness="1" BorderBrush="Black"  ToolTip="Available COM ports" >
 
                 </ComboBox>
                 <Separator></Separator>
