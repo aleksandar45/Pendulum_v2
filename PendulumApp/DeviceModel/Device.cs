@@ -58,6 +58,83 @@ namespace PendulumApp.DeviceModel
 
         public void ParseRingBuffers(object sender, EventArgs e) {
 
+            byte[] comBuffer = new byte[8192];
+            byte[] tmpBuffer = new byte[100];
+            byte[] dataBuffer = new byte[100];
+
+            int emgCH1, emgCH2;
+            int x, y, z;
+            int bat_value;
+            int status;
+
+            try
+            {
+                int count = comPort.ReadData(ref comBuffer);
+                if (comPortRB.WriteSpace() < count)
+                {
+                    throw new Exception("Not enough space in ring buffer");
+                }
+                if (count > 0 && (comPortRB.WriteSpace() >= count))
+                    comPortRB.Write(comBuffer, count);
+
+                /*if (count > 0 && (comPortRB.ReadSpace() < count))
+                    comPortRB.Write(comBuffer, count);*/
+                if ((record) && (recorded_data.Count > 1500000))  //1500000))
+                {
+                    recorded_data.Clear();
+                    recorded_packets.Clear();
+                    parseTimer.Stop();
+                    throw new Exception("Size of recorded file exceeds limit \n ");                   
+
+                }
+                if (comPortRB.ReadSpace() >= 94)
+                {
+                    while (comPortRB.ReadSpace() > 1)
+                    {
+                        comPortRB.Read(tmpBuffer, 1);
+
+                        if (tmpBuffer[0] == 0xFF)               // 0xff
+                        {
+                            comPortRB.Read(tmpBuffer, 1);
+
+                            if (tmpBuffer[0] == 0xFF)           // 0xff
+                            {
+                                comPortRB.Read(tmpBuffer, 1);
+
+                                if (tmpBuffer[0] == 0xFF)       // 0xff
+                                {
+                                    comPortRB.Read(tmpBuffer, 2);
+                                    if ((tmpBuffer[0] == 'D') && (tmpBuffer[1] == 39))     // 
+                                    {
+                                        comPortRB.Read(dataBuffer, 39);
+                                        comPortRB.Read(tmpBuffer, 3);
+                                        if ((tmpBuffer[0] == 'E') && (tmpBuffer[1] == 'N') && (tmpBuffer[2] == 'D'))
+                                        {
+                                            if (mainWindowViewModel.COMConnectionStatus == false)
+                                            {
+                                                mainWindowViewModel.COMConnectionStatus = true;
+                                            }
+                                           
+                                        }
+
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                glD.renderDisplays();
+
+            }
+            catch (Exception ex)
+            {
+                Log l = new Log();
+                l.LogMessageToFile(TAG + "ParseRingBuffers:" + ex.ToString());
+                Dialogs.DialogMessage.DialogMessageViewModel dvm = new Dialogs.DialogMessage.DialogMessageViewModel(Dialogs.DialogMessage.DialogImageTypeEnum.Error, ex.Message);
+                Dialogs.DialogService.DialogResult result = Dialogs.DialogService.DialogService.OpenDialog(dvm);
+                parseTimer.Stop();
+            }
+
         }
         public bool StartStopPlaying(bool playing)
         {
@@ -66,6 +143,7 @@ namespace PendulumApp.DeviceModel
                 if (playing)
                 {
                     mainWindowViewModel.ComboboxCOMPortsIsEnabled = true;
+                    mainWindowViewModel.COMConnectionStatus = false;
                     if (comPort.IsOpen())
                     {
                         byte[] b = new byte[3];
@@ -93,12 +171,12 @@ namespace PendulumApp.DeviceModel
                         glD.accIndex = 0;
                         glD.gyIndex = 0;
                        
-                        comPort.setCommParms(port, 460800, Parity.NONE, DataBits.EIGHT, StopBits.ONE, HandshakeBits.None);
+                        comPort.setCommParms(port, 115200, Parity.NONE, DataBits.EIGHT, StopBits.ONE, HandshakeBits.None);
                         comPort.Open();
 
                         if (comPort.IsOpen())
                         {
-                            mainWindowViewModel.ComboboxCOMPortsIsEnabled = false;
+                            mainWindowViewModel.ComboboxCOMPortsIsEnabled = false;                            
                             byte[] b = new byte[3];
                             b[0] = (byte)'+';
                             b[1] = (byte)'T';
