@@ -186,6 +186,10 @@
                 <Label  Width="100" Height="40" Content="{Binding AccGy1StatusLabelText}" Foreground="{Binding AccGy1StatusLabelColor}" FontSize="12" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"  FontStretch="Normal" />
                 <Separator></Separator>
                 <Label  Width="100" Height="40" Content="{Binding EMGStatusLabelText}" Foreground="{Binding EMGStatusLabelColor}" FontSize="12" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"  FontStretch="Normal" />
+                <Separator></Separator>
+                <Label  Width="100" Height="40" Content="{Binding BatteryStatusTextLabel}" Foreground="{Binding BatteryStatusLabelColor}" FontSize="12" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"  FontStretch="Normal" />
+           
+                
             </ToolBar>
             <Grid>
                 <Grid.RowDefinitions>

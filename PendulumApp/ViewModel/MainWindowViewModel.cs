@@ -10,7 +10,7 @@ using PendulumApp.Settings;
 
 namespace PendulumApp.ViewModel
 {
-    class MainWindowViewModel: ViewModelBase
+    class MainWindowViewModel : ViewModelBase
     {
         public MainWindowViewModel(OpenGLDispatcher openGLDispatcher, SettingProgram settingProgramData, SettingEMG settingEMGData, SettingACC settingACCData, SettingGY settingGYData) {
 
@@ -25,7 +25,7 @@ namespace PendulumApp.ViewModel
             foreach (string port in ports)
             {
                 _comboBoxCOMPorts.Add(port);
-                _comboboxSelectedItem = port;                
+                _comboboxSelectedItem = port;
             }
 
             SettingProgramData = settingProgramData;
@@ -201,7 +201,7 @@ namespace PendulumApp.ViewModel
 
         public ICommand RecordCommand { get; set; }
         private void RecordExecute(object obj)
-        {            
+        {
             if (deviceRecordExecute(Recording))          //check if procedure is executed properly
             {
                 if (Recording)
@@ -277,7 +277,7 @@ namespace PendulumApp.ViewModel
         public ICommand CalibrateCommand { get; set; }
         private void CalibrateExecute(object obj)
         {
-            deviceCalibrateExecute();            
+            deviceCalibrateExecute();
         }
         private bool CanCalibrateExecute(object obj)
         {
@@ -299,11 +299,21 @@ namespace PendulumApp.ViewModel
                 {
                     COMConnectionLabelText = "COM: Connected";
                     COMConnectionLabelColor = Brushes.LawnGreen;
+
+                    ButtonRecordIsEnabled = true;
+                    RecordImageOpacity = 1.0f;
+                    ButtonCalibrateIsEnabled = true;
+                    CalibrateImageOpacity = 1.0f;
                 }
                 else
                 {
                     COMConnectionLabelText = "COM: Disconnected";
                     COMConnectionLabelColor = Brushes.Red;
+
+                    ButtonRecordIsEnabled = false;
+                    RecordImageOpacity = 0.5f;
+                    ButtonCalibrateIsEnabled = false;
+                    CalibrateImageOpacity = 0.5f;
                 }
             }
         }
@@ -426,7 +436,7 @@ namespace PendulumApp.ViewModel
         }
         #endregion
 
-        #region ACC/EMG STATUSES
+        #region ACC/EMG/BAT STATUSES
         private bool _accGy0Status = false;
         public bool AccGy0Status
         {
@@ -546,7 +556,7 @@ namespace PendulumApp.ViewModel
                 OnPropertyChanged("AccGy1StatusLabelText");
             }
         }
-      
+
         private Brush _emgStatusLabelColor = Brushes.Red;
         public Brush EMGStatusLabelColor
         {
@@ -573,6 +583,54 @@ namespace PendulumApp.ViewModel
                 OnPropertyChanged("EMGStatusLabelText");
             }
         }
+
+        private bool _batteryLowLevel = false;
+        public bool BatteryLowLevel
+        {
+            get
+            {
+                return _batteryLowLevel;
+            }
+            set
+            {
+                _batteryLowLevel = value;
+                if (_batteryLowLevel)
+                {
+                    BatteryStatusLabelColor = Brushes.Red;
+                }
+                else
+                {
+                    BatteryStatusLabelColor = Brushes.LawnGreen;
+                }
+            }
+        }
+        private Brush _batteryStatusLabelColor = Brushes.Red;
+        public Brush BatteryStatusLabelColor
+        {
+            get
+            {
+                return _batteryStatusLabelColor;
+            }
+            set
+            {
+                _batteryStatusLabelColor = value;
+                OnPropertyChanged("BatteryStatusLabelColor");
+            }
+        }
+        private string _batteryStatusTextLabel = "Battery: N/A";
+        public string BatteryStatusTextLabel
+        {
+            get
+            {
+                return _batteryStatusTextLabel;
+            }
+            set
+            {
+                _batteryStatusTextLabel = value;
+                OnPropertyChanged("BatteryStatusTextLabel");
+            }
+        }
+
         #endregion
 
         #region OPENGL
