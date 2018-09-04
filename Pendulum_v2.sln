@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.27703.2000
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PendulumApp", "PendulumApp\PendulumApp.csproj", "{4A84F472-7AF6-4092-8E98-A6D6FC39ECF8}"
 EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "SetupApp", "SetupApp\SetupApp.vdproj", "{649CD7A9-1580-4179-8061-54135111CFBC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,8 @@ Global
 		{4A84F472-7AF6-4092-8E98-A6D6FC39ECF8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4A84F472-7AF6-4092-8E98-A6D6FC39ECF8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4A84F472-7AF6-4092-8E98-A6D6FC39ECF8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{649CD7A9-1580-4179-8061-54135111CFBC}.Debug|Any CPU.ActiveCfg = Debug
+		{649CD7A9-1580-4179-8061-54135111CFBC}.Release|Any CPU.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

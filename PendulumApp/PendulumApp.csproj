@@ -71,7 +71,15 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Dialogs\DialogSaveFile\DialogSaveFileView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Dialogs\DialogService\DialogWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\DialogSetAxis\DialogSetAxisView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -92,12 +100,22 @@
     </Compile>
     <Compile Include="Dialogs\DialogMessage\DialogMessageViewModel.cs" />
     <Compile Include="Dialogs\DialogMessage\DialogResultMessage.cs" />
+    <Compile Include="Dialogs\DialogSaveFile\DialogResultSaveFile.cs" />
+    <Compile Include="Dialogs\DialogSaveFile\DialogSaveFileView.xaml.cs">
+      <DependentUpon>DialogSaveFileView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\DialogSaveFile\DialogSaveFileViewModel.cs" />
     <Compile Include="Dialogs\DialogService\DialogResult.cs" />
     <Compile Include="Dialogs\DialogService\DialogService.cs" />
     <Compile Include="Dialogs\DialogService\DialogViewModelBase .cs" />
     <Compile Include="Dialogs\DialogService\DialogWindow.xaml.cs">
       <DependentUpon>DialogWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Dialogs\DialogSetAxis\DialogResultSetAxis.cs" />
+    <Compile Include="Dialogs\DialogSetAxis\DialogSetAxisView.xaml.cs">
+      <DependentUpon>DialogSetAxisView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\DialogSetAxis\DialogSetAxisViewModel.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="Settings\SettingACC.cs" />
     <Compile Include="Settings\SettingEMG.cs" />
@@ -143,7 +161,9 @@
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Images\AutoZoom.png" />
+  </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\Calibrate.png" />
   </ItemGroup>
@@ -188,6 +208,12 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\Warning.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Icon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\PendulumIcon.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

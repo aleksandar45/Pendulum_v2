@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Windows;
 using System.Windows.Input;
 using System.IO.Ports;
 using System.Windows.Media;
@@ -18,6 +19,12 @@ namespace PendulumApp.ViewModel
             PlayCommand = new DelegateCommand(PlayExecute, CanPlayExecute);
             RecordCommand = new DelegateCommand(RecordExecute, CanRecordExecute);
             CalibrateCommand = new DelegateCommand(CalibrateExecute, CanCalibrateExecute);
+            SetAxis1Command = new DelegateCommand(SetAxis1Execute);
+            SetAxis2Command = new DelegateCommand(SetAxis2Execute);
+            SetAxis3Command = new DelegateCommand(SetAxis3Execute);
+            SetAxis4Command = new DelegateCommand(SetAxis4Execute);
+            SetAxis5Command = new DelegateCommand(SetAxis5Execute);
+            SetAxis6Command = new DelegateCommand(SetAxis6Execute);
             WindowClosing = new DelegateCommand(WindowClosingExecute);
 
             string[] ports = SerialPort.GetPortNames();
@@ -33,8 +40,14 @@ namespace PendulumApp.ViewModel
             SettingACCData = settingACCData;
             SettingGYData = settingGYData;
 
-            ToogleButtonUser1IsChecked = true;
+            openGLDispatcher.setScaleFactors(settingEMGData.Scale, settingACCData.Scale, settingGYData.Scale);
+            for(int i = 0; i < 6; i++)
+            {
+                openGLDispatcher.setAxisValues(i + 1, settingProgramData.YMax[i], settingProgramData.YMin[i]);
+            }                       
 
+            ToogleButtonUser1IsChecked = true;
+            ToggleButtonAutoZoomIsChecked = false;
         }
 
 
@@ -282,6 +295,52 @@ namespace PendulumApp.ViewModel
         private bool CanCalibrateExecute(object obj)
         {
             return true;
+        }
+        #endregion
+
+        #region TOGGLE BUTTON AUTO ZOOM
+        private string _toggleButtonAutoZoomToolTip = "Auto zoom on";
+        public string ToggleButtonAutoZoomToolTip
+        {
+            get
+            {
+                return _toggleButtonAutoZoomToolTip;
+            }
+            set
+            {
+                _toggleButtonAutoZoomToolTip = value;
+                OnPropertyChanged("ToggleButtonAutoZoomToolTip");
+            }
+        }
+
+        private bool _toggleButtonAutoZoomIsChecked = false;
+        public bool ToggleButtonAutoZoomIsChecked
+        {
+            get
+            {
+                return _toggleButtonAutoZoomIsChecked;
+            }
+            set
+            {
+                _toggleButtonAutoZoomIsChecked = value;
+                OnPropertyChanged("ToggleButtonAutoZoomIsChecked");
+                if (_toggleButtonAutoZoomIsChecked)
+                {
+                    for (int i = 1; i <= 6; i++)
+                    {
+                        OpenGLDispatcher.setAutoZoom(i,true);
+                    }
+                    ToggleButtonAutoZoomToolTip = "Auto zoom off";
+                }
+                else
+                {
+                    for (int i = 1; i <= 6; i++)
+                    {
+                        OpenGLDispatcher.setAutoZoom(i, false);
+                    }
+                    ToggleButtonAutoZoomToolTip = "Auto zoom on";
+                }
+            }
         }
         #endregion
 
@@ -659,32 +718,35 @@ namespace PendulumApp.ViewModel
                     ButtonSetAxis2IsEnabled = true;
                     ButtonSetAxis3IsEnabled = true;
                     ButtonSetAxis4IsEnabled = true;
-                    ButtonSetAxis5IsEnabled = true;
-                    ButtonSetAxis6IsEnabled = true;
+                    ButtonSetAxis5IsEnabled = false;
+                    ButtonSetAxis6IsEnabled = false;
 
-                    LabelDisplay1Tittle = "EMG1";
-                    LabelDisplay2Tittle = "EMG2";
-                    LabelDisplay3Tittle = "EMG1";
-                    LabelDisplay4Tittle = "EMG1";
-                    LabelDisplay5Tittle = "EMG1";
-                    LabelDisplay6Tittle = "EMG1";
+                    LabelDisplay1Tittle = "EMG1 (mV)";
+                    LabelDisplay2Tittle = "EMG2 (mV)";
+                    LabelDisplay3Tittle = "ACC Thigh/Sagital (m/s^2)";
+                    LabelDisplay4Tittle = "ACC Shank/Sagital (m/s^2)";
+                    LabelDisplay5Tittle = "";
+                    LabelDisplay6Tittle = "";
+                    
                     OpenGLDispatcher.enableDisplay(1);                   
                     OpenGLDispatcher.linkDisplay(1, "EMG", 1);
+                    OpenGLDispatcher.setAxisValues(1, SettingProgramData.YMax[0], SettingProgramData.YMin[0]);
 
                     OpenGLDispatcher.enableDisplay(2);                    
                     OpenGLDispatcher.linkDisplay(2, "EMG", 2);
+                    OpenGLDispatcher.setAxisValues(2, SettingProgramData.YMax[1], SettingProgramData.YMin[1]);
 
                     OpenGLDispatcher.enableDisplay(3);                    
                     OpenGLDispatcher.linkDisplay(3, "ACC", 1);         //ACC0z 
+                    OpenGLDispatcher.setAxisValues(3, SettingProgramData.YMax[2], SettingProgramData.YMin[2]);
 
                     OpenGLDispatcher.enableDisplay(4);                    
                     OpenGLDispatcher.linkDisplay(4, "ACC", 2);         //ACC1z
+                    OpenGLDispatcher.setAxisValues(4, SettingProgramData.YMax[3], SettingProgramData.YMin[3]);
 
-                    OpenGLDispatcher.enableDisplay(5);                    
-                    OpenGLDispatcher.linkDisplay(5, "GY", 1);          //GY
+                    OpenGLDispatcher.disableDisplay(5);
+                    OpenGLDispatcher.disableDisplay(6);
 
-                    OpenGLDispatcher.enableDisplay(6);                    
-                    OpenGLDispatcher.linkDisplay(6, "GY", 2);          //GY
                 }
                 OnPropertyChanged("ToogleButtonUser1IsChecked");
             }
@@ -703,26 +765,35 @@ namespace PendulumApp.ViewModel
                 {
                     ToogleButtonUser1IsChecked = false;
                     ButtonSetAxis1IsEnabled = true;
-                    ButtonSetAxis2IsEnabled = false;
-                    ButtonSetAxis3IsEnabled = false;
+                    ButtonSetAxis2IsEnabled = true;
+                    ButtonSetAxis3IsEnabled = true;
                     ButtonSetAxis4IsEnabled = false;
                     ButtonSetAxis5IsEnabled = false;
                     ButtonSetAxis6IsEnabled = false;
 
-                    LabelDisplay1Tittle = "EMG1";
-                    LabelDisplay2Tittle = "";
-                    LabelDisplay3Tittle = "";
+                    LabelDisplay1Tittle = "GY Thigh/Sagital (rad/s)";
+                    LabelDisplay2Tittle = "GY Thigh/Frontal (rad/s)";
+                    LabelDisplay3Tittle = "GY Shank/Sagital (rad/s)";
                     LabelDisplay4Tittle = "";
                     LabelDisplay5Tittle = "";
                     LabelDisplay6Tittle = "";
+                   
 
                     OpenGLDispatcher.enableDisplay(1);
-                    OpenGLDispatcher.disableDisplay(2);
-                    OpenGLDispatcher.disableDisplay(3);
+                    OpenGLDispatcher.linkDisplay(1, "GY", 1);          //GY0
+                    OpenGLDispatcher.setAxisValues(1, SettingProgramData.YMax[4], SettingProgramData.YMin[4]);
+
+                    OpenGLDispatcher.enableDisplay(2);
+                    OpenGLDispatcher.linkDisplay(2, "GY", 2);          //GY0
+                    OpenGLDispatcher.setAxisValues(2, SettingProgramData.YMax[5], SettingProgramData.YMin[5]);
+
+                    OpenGLDispatcher.enableDisplay(3);
+                    OpenGLDispatcher.linkDisplay(3, "GY", 3);          //GY1
+                    OpenGLDispatcher.setAxisValues(3, SettingProgramData.YMax[6], SettingProgramData.YMin[6]);
+
                     OpenGLDispatcher.disableDisplay(4);
                     OpenGLDispatcher.disableDisplay(5);
                     OpenGLDispatcher.disableDisplay(6);
-                    OpenGLDispatcher.linkDisplay(1, "GY", 3);               //GY
 
                 }
                 OnPropertyChanged("ToogleButtonUser2IsChecked");
@@ -935,6 +1006,120 @@ namespace PendulumApp.ViewModel
                 OnPropertyChanged("ButtonSetAxis6IsEnabled");
             }
         }
+
+        public ICommand SetAxis1Command { get; set; }
+        private void SetAxis1Execute(object obj)
+        {
+            Dialogs.DialogService.DialogViewModelBase vm = new Dialogs.DialogSetAxis.DialogSetAxisViewModel();
+            Dialogs.DialogService.DialogResult result = Dialogs.DialogService.DialogService.OpenDialog(vm);
+
+            Dialogs.DialogSetAxis.DialogResultSetAxis resultSetAxis = result as Dialogs.DialogSetAxis.DialogResultSetAxis;
+            if (resultSetAxis.OKClicked)
+            {
+                OpenGLDispatcher.setAxisValues(1, resultSetAxis.YMax, resultSetAxis.YMin);
+            }
+            if (ToogleButtonUser1IsChecked)
+            {
+                SettingProgramData.YMax[0] = resultSetAxis.YMax;
+                SettingProgramData.YMin[0] = resultSetAxis.YMin;
+            }
+            else
+            {
+                SettingProgramData.YMax[4] = resultSetAxis.YMax;
+                SettingProgramData.YMin[4] = resultSetAxis.YMin;
+            }
+        }
+        public ICommand SetAxis2Command { get; set; }
+        private void SetAxis2Execute(object obj)
+        {
+            Dialogs.DialogService.DialogViewModelBase vm = new Dialogs.DialogSetAxis.DialogSetAxisViewModel();
+            Dialogs.DialogService.DialogResult result = Dialogs.DialogService.DialogService.OpenDialog(vm);
+            Dialogs.DialogSetAxis.DialogResultSetAxis resultSetAxis = result as Dialogs.DialogSetAxis.DialogResultSetAxis;
+
+            if (resultSetAxis.OKClicked)
+            {
+                OpenGLDispatcher.setAxisValues(2, resultSetAxis.YMax, resultSetAxis.YMin);
+            }
+            if (ToogleButtonUser1IsChecked)
+            {
+                SettingProgramData.YMax[1] = resultSetAxis.YMax;
+                SettingProgramData.YMin[1] = resultSetAxis.YMin;
+            }
+            else
+            {
+                SettingProgramData.YMax[5] = resultSetAxis.YMax;
+                SettingProgramData.YMin[5] = resultSetAxis.YMin;
+            }
+            
+        }
+        public ICommand SetAxis3Command { get; set; }
+        private void SetAxis3Execute(object obj)
+        {
+            Dialogs.DialogService.DialogViewModelBase vm = new Dialogs.DialogSetAxis.DialogSetAxisViewModel();
+            Dialogs.DialogService.DialogResult result = Dialogs.DialogService.DialogService.OpenDialog(vm);
+            Dialogs.DialogSetAxis.DialogResultSetAxis resultSetAxis = result as Dialogs.DialogSetAxis.DialogResultSetAxis;
+
+            if (resultSetAxis.OKClicked)
+            {
+                OpenGLDispatcher.setAxisValues(3, resultSetAxis.YMax, resultSetAxis.YMin);
+            }
+            if (ToogleButtonUser1IsChecked)
+            {
+                SettingProgramData.YMax[2] = resultSetAxis.YMax;
+                SettingProgramData.YMin[2] = resultSetAxis.YMin;
+            }
+            else
+            {
+                SettingProgramData.YMax[6] = resultSetAxis.YMax;
+                SettingProgramData.YMin[6] = resultSetAxis.YMin;
+            }
+            
+        }
+        public ICommand SetAxis4Command { get; set; }
+        private void SetAxis4Execute(object obj)
+        {
+            Dialogs.DialogService.DialogViewModelBase vm = new Dialogs.DialogSetAxis.DialogSetAxisViewModel();
+            Dialogs.DialogService.DialogResult result = Dialogs.DialogService.DialogService.OpenDialog(vm);
+            Dialogs.DialogSetAxis.DialogResultSetAxis resultSetAxis = result as Dialogs.DialogSetAxis.DialogResultSetAxis;
+
+            if (resultSetAxis.OKClicked)
+            {
+                OpenGLDispatcher.setAxisValues(4, resultSetAxis.YMax, resultSetAxis.YMin);
+            }
+            SettingProgramData.YMax[3] = resultSetAxis.YMax;
+            SettingProgramData.YMin[3] = resultSetAxis.YMin;
+        }
+        public ICommand SetAxis5Command { get; set; }
+        private void SetAxis5Execute(object obj)
+        {
+            Dialogs.DialogService.DialogViewModelBase vm = new Dialogs.DialogSetAxis.DialogSetAxisViewModel();
+            Dialogs.DialogService.DialogResult result = Dialogs.DialogService.DialogService.OpenDialog(vm);
+            Dialogs.DialogSetAxis.DialogResultSetAxis resultSetAxis = result as Dialogs.DialogSetAxis.DialogResultSetAxis;
+
+            if (resultSetAxis.OKClicked)
+            {
+                OpenGLDispatcher.setAxisValues(5, resultSetAxis.YMax, resultSetAxis.YMin);
+            }
+            SettingProgramData.YMax[4] = resultSetAxis.YMax;
+            SettingProgramData.YMin[4] = resultSetAxis.YMin;
+        }
+        public ICommand SetAxis6Command { get; set; }
+        private void SetAxis6Execute(object obj)
+        {
+            Dialogs.DialogService.DialogViewModelBase vm = new Dialogs.DialogSetAxis.DialogSetAxisViewModel();
+            Dialogs.DialogService.DialogResult result = Dialogs.DialogService.DialogService.OpenDialog(vm);
+            Dialogs.DialogSetAxis.DialogResultSetAxis resultSetAxis = result as Dialogs.DialogSetAxis.DialogResultSetAxis;
+
+            if (resultSetAxis.OKClicked)
+            {
+                OpenGLDispatcher.setAxisValues(6, resultSetAxis.YMax, resultSetAxis.YMin);
+            }
+            SettingProgramData.YMax[5] = resultSetAxis.YMax;
+            SettingProgramData.YMin[5] = resultSetAxis.YMin;
+
+        }
+
+
         #endregion
 
         #region DISPLAY_TITLES

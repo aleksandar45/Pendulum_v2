@@ -19,7 +19,10 @@ namespace PendulumApp.Settings
                 string savePath = "";
                 float battMax = 0.0f;
                 float battMin = 0.0f;
-                float battAlert = 0.0f;    
+                float battAlert = 0.0f;
+                double[] yMax = new double[7] {1,1,1,1,1,1,1};
+                double[] yMin = new double[7];
+                bool floatSaveFormat = true;
 
                 string line;
 
@@ -28,7 +31,7 @@ namespace PendulumApp.Settings
                     if (!Directory.Exists(savePath)) {
                         Directory.CreateDirectory(path);
                     }
-                    return new SettingProgram(savePath, 2.6f, 1.9f, 2.1f);
+                    return new SettingProgram(savePath, 2.6f, 1.9f, 2.1f,yMax, yMin, floatSaveFormat);
                 }
                 StreamReader sr = File.OpenText(path + "Settings.dat");
 
@@ -40,7 +43,66 @@ namespace PendulumApp.Settings
                         if (String.Compare(line, 0, "ProgramSetting_SavePath", 0, 23) == 0) savePath = line.Substring(24);
                         if (String.Compare(line, 0, "ProgramSetting_BattMax", 0, 22) == 0) battMax = (float) Double.Parse(line.Substring(23), CultureInfo.InvariantCulture);
                         if (String.Compare(line, 0, "ProgramSetting_BattMin", 0, 22) == 0) battMin = (float) Double.Parse(line.Substring(23), CultureInfo.InvariantCulture);
-                        if (String.Compare(line, 0, "ProgramSetting_BattAlert", 0, 24) == 0) battAlert = (float) Double.Parse(line.Substring(25), CultureInfo.InvariantCulture);                        
+                        if (String.Compare(line, 0, "ProgramSetting_BattAlert", 0, 24) == 0) battAlert = (float) Double.Parse(line.Substring(25), CultureInfo.InvariantCulture);
+                        if (String.Compare(line, 0, "ProgramSetting_OpenGlYmax", 0, 25) == 0)
+                        {
+                            double tempYmax = (float)Double.Parse(line.Substring(27), CultureInfo.InvariantCulture);
+                            switch (line[25])
+                            {
+                                case '1':
+                                    yMax[0] = tempYmax;
+                                    break;
+                                case '2':
+                                    yMax[1] = tempYmax;
+                                    break;
+                                case '3':
+                                    yMax[2] = tempYmax;
+                                    break;
+                                case '4':
+                                    yMax[3] = tempYmax;
+                                    break;
+                                case '5':
+                                    yMax[4] = tempYmax;
+                                    break;
+                                case '6':
+                                    yMax[5] = tempYmax;
+                                    break;
+                                case '7':
+                                    yMax[6] = tempYmax;
+                                    break;
+                            }
+                            
+                        }
+                        if (String.Compare(line, 0, "ProgramSetting_OpenGlYmin", 0, 25) == 0)
+                        {
+                            double tempYmin = (float)Double.Parse(line.Substring(27), CultureInfo.InvariantCulture);
+                            switch (line[25])
+                            {
+                                case '1':
+                                    yMin[0] = tempYmin;
+                                    break;
+                                case '2':
+                                    yMin[1] = tempYmin;
+                                    break;
+                                case '3':
+                                    yMin[2] = tempYmin;
+                                    break;
+                                case '4':
+                                    yMin[3] = tempYmin;
+                                    break;
+                                case '5':
+                                    yMin[4] = tempYmin;
+                                    break;
+                                case '6':
+                                    yMin[5] = tempYmin;
+                                    break;
+                                case '7':
+                                    yMin[6] = tempYmin;
+                                    break;
+                            }
+
+                        }
+                        if (String.Compare(line, 0, "ProgramSetting_FloatSaveFormat,", 0, 30) == 0) floatSaveFormat = bool.Parse(line.Substring(31));
                     }
 
                 }
@@ -51,7 +113,7 @@ namespace PendulumApp.Settings
                     savePath = path + "SavedFiles";
                 }
                 // if (!System.IO.Directory.Exists(savePath)) throw new Exception("Save directory declared in Setting.dat does not exist. Create it manualy or change save path!!!");
-                return new SettingProgram(savePath, battMax, battMin, battAlert);
+                return new SettingProgram(savePath, battMax, battMin, battAlert,yMax,yMin, floatSaveFormat);
             }
             catch (Exception ex)
             {
@@ -71,7 +133,7 @@ namespace PendulumApp.Settings
                 string line;
                 if (!File.Exists(path + "Settings.dat"))
                 {                  
-                    return new SettingEMG(1);
+                    return new SettingEMG(6990);
                 }
                 System.IO.StreamReader sr = System.IO.File.OpenText(path + "Settings.dat");
 
@@ -116,8 +178,8 @@ namespace PendulumApp.Settings
                     offsetACC1.Add(0);
                     offsetACC1.Add(0);
                     offsetACC1.Add(0);
-
-                    return new SettingACC(1, offsetACC0, offsetACC1);
+                    //8192 = 1g = 9.81m/s^2 => 8192/9.81 = 835
+                    return new SettingACC(835, offsetACC0, offsetACC1);
                 }
                 System.IO.StreamReader sr = System.IO.File.OpenText(path + "Settings.dat");
 
@@ -167,8 +229,8 @@ namespace PendulumApp.Settings
                     offsetGY1.Add(0);
                     offsetGY1.Add(0);
                     offsetGY1.Add(0);
-
-                    return new SettingGY(1, offsetGY0, offsetGY1);
+                    //32768=500deg/s=8.72rad/s =>32768/8.72 = 3755
+                    return new SettingGY(3755, offsetGY0, offsetGY1);
                 }
                 System.IO.StreamReader sr = System.IO.File.OpenText(path + "Settings.dat");
 
@@ -217,7 +279,37 @@ namespace PendulumApp.Settings
                 sw.WriteLine(line);
                 line = "ProgramSetting_BattMin=" + settingProgram.MinBatteryVoltage.ToString(CultureInfo.InvariantCulture);
                 sw.WriteLine(line);
-                line = "ProgramSetting_BattAlert=" + settingProgram.BatteryAlertVoltage.ToString(CultureInfo.InvariantCulture) + newline;
+                line = "ProgramSetting_BattAlert=" + settingProgram.BatteryAlertVoltage.ToString(CultureInfo.InvariantCulture);
+                sw.WriteLine(line);
+                line = "ProgramSetting_OpenGlYmax1=" + settingProgram.YMax[0].ToString(CultureInfo.InvariantCulture);
+                sw.WriteLine(line);
+                line = "ProgramSetting_OpenGlYmin1=" + settingProgram.YMin[0].ToString(CultureInfo.InvariantCulture);
+                sw.WriteLine(line);
+                line = "ProgramSetting_OpenGlYmax2=" + settingProgram.YMax[1].ToString(CultureInfo.InvariantCulture);
+                sw.WriteLine(line);
+                line = "ProgramSetting_OpenGlYmin2=" + settingProgram.YMin[1].ToString(CultureInfo.InvariantCulture);
+                sw.WriteLine(line);
+                line = "ProgramSetting_OpenGlYmax3=" + settingProgram.YMax[2].ToString(CultureInfo.InvariantCulture);
+                sw.WriteLine(line);
+                line = "ProgramSetting_OpenGlYmin3=" + settingProgram.YMin[2].ToString(CultureInfo.InvariantCulture);
+                sw.WriteLine(line);
+                line = "ProgramSetting_OpenGlYmax4=" + settingProgram.YMax[3].ToString(CultureInfo.InvariantCulture);
+                sw.WriteLine(line);
+                line = "ProgramSetting_OpenGlYmin4=" + settingProgram.YMin[3].ToString(CultureInfo.InvariantCulture);
+                sw.WriteLine(line);
+                line = "ProgramSetting_OpenGlYmax5=" + settingProgram.YMax[4].ToString(CultureInfo.InvariantCulture);
+                sw.WriteLine(line);
+                line = "ProgramSetting_OpenGlYmin5=" + settingProgram.YMin[4].ToString(CultureInfo.InvariantCulture);
+                sw.WriteLine(line);
+                line = "ProgramSetting_OpenGlYmax6=" + settingProgram.YMax[5].ToString(CultureInfo.InvariantCulture);
+                sw.WriteLine(line);
+                line = "ProgramSetting_OpenGlYmin6=" + settingProgram.YMin[5].ToString(CultureInfo.InvariantCulture);
+                sw.WriteLine(line);
+                line = "ProgramSetting_OpenGlYmax7=" + settingProgram.YMax[6].ToString(CultureInfo.InvariantCulture);
+                sw.WriteLine(line);
+                line = "ProgramSetting_OpenGlYmin7=" + settingProgram.YMin[6].ToString(CultureInfo.InvariantCulture);
+                sw.WriteLine(line);
+                line = "ProgramSetting_FloatSaveFormat=" + settingProgram.FloatSaveFormat.ToString() + newline;
                 sw.WriteLine(line);
 
                 line = String.Format("//EMGSetting");

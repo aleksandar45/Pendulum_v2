@@ -63,6 +63,16 @@ namespace PendulumApp.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap AutoZoom {
+            get {
+                object obj = ResourceManager.GetObject("AutoZoom", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap Calibrate {
             get {
                 object obj = ResourceManager.GetObject("Calibrate", resourceCulture);
@@ -101,12 +111,12 @@ namespace PendulumApp.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
         /// </summary>
-        internal static System.Drawing.Bitmap Pendulum_Icon {
+        internal static System.Drawing.Icon PendulumIcon {
             get {
-                object obj = ResourceManager.GetObject("Pendulum_Icon", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
+                object obj = ResourceManager.GetObject("PendulumIcon", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
             }
         }
         

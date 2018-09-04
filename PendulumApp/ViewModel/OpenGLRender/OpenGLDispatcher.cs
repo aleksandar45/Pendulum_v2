@@ -11,6 +11,10 @@ namespace PendulumApp.ViewModel.OpenGLRender
         public const int ACC_BUFFER_LENGTH = 400;
         public const int GY_BUFFER_LENGTH = 400;
 
+        private int scaleEMG;
+        private int scaleACC;
+        private int scaleGY;
+
         OpenGlDisplay openGlDisplay1;
         OpenGlDisplay openGlDisplay2;
         OpenGlDisplay openGlDisplay3;
@@ -111,7 +115,7 @@ namespace PendulumApp.ViewModel.OpenGLRender
 
             gyChannels = new List<IntArray>(gyNoCh);
             for (int i = 0; i < gyNoCh; i++)
-                gyChannels.Add(new IntArray(GY_BUFFER_LENGTH));            
+                gyChannels.Add(new IntArray(GY_BUFFER_LENGTH));          
 
         }
         public void renderDisplays()
@@ -172,6 +176,71 @@ namespace PendulumApp.ViewModel.OpenGLRender
                     openGlDisplay6.Visible = true;
                     break;
             }
+        }        
+        public void setScaleFactors(int emgScaleFactor, int accScaleFactor, int gyScaleFactor)
+        {
+            scaleEMG = emgScaleFactor;
+            scaleACC = accScaleFactor;
+            scaleGY = gyScaleFactor;
+        }
+        public void setAxisValues(int displayNum,double yMax, double yMin)
+        {
+            OpenGlDisplay tempDisplay;
+            switch (displayNum)
+            {
+                case 1:
+                    tempDisplay = openGlDisplay1;
+                    break;
+                case 2:
+                    tempDisplay = openGlDisplay2;
+                    break;
+                case 3:
+                    tempDisplay = openGlDisplay3;
+                    break;
+                case 4:
+                    tempDisplay = openGlDisplay4;
+                    break;
+                case 5:
+                    tempDisplay = openGlDisplay5;
+                    break;
+                case 6:
+                    tempDisplay = openGlDisplay6;
+                    break;
+                default:
+                    tempDisplay = openGlDisplay1;
+                    break;
+            }
+            tempDisplay.YMax = yMax;
+            tempDisplay.YMin = yMin;
+        }
+        public void setAutoZoom(int displayNum,bool autoZoom)
+        {
+            OpenGlDisplay tempDisplay;
+            switch (displayNum)
+            {
+                case 1:
+                    tempDisplay = openGlDisplay1;
+                    break;
+                case 2:
+                    tempDisplay = openGlDisplay2;
+                    break;
+                case 3:
+                    tempDisplay = openGlDisplay3;
+                    break;
+                case 4:
+                    tempDisplay = openGlDisplay4;
+                    break;
+                case 5:
+                    tempDisplay = openGlDisplay5;
+                    break;
+                case 6:
+                    tempDisplay = openGlDisplay6;
+                    break;
+                default:
+                    tempDisplay = openGlDisplay1;
+                    break;
+            }
+            tempDisplay.AutoZoom = autoZoom;
         }
         public bool linkDisplay(int displayNum, string type, int ch_no)
         {
@@ -205,6 +274,7 @@ namespace PendulumApp.ViewModel.OpenGLRender
                 if (tempDisplay != null)
                 {
                     tempDisplay.linkArray(emgChannels.ElementAt(ch_no - 1));
+                    tempDisplay.ScaleFactor = scaleEMG;
                     return true;
                 }
                 else return false;
@@ -213,14 +283,16 @@ namespace PendulumApp.ViewModel.OpenGLRender
             {
                 if (tempDisplay != null)
                 {
-                    tempDisplay.linkArray(accChannels.ElementAt(ch_no - 1));                    
+                    tempDisplay.linkArray(accChannels.ElementAt(ch_no - 1));
+                    tempDisplay.ScaleFactor = scaleACC;
                 }
             }
             if (String.Compare(type, "GY") == 0)
             {
                 if (tempDisplay != null)
                 {
-                    tempDisplay.linkArray(gyChannels.ElementAt(ch_no - 1));                    
+                    tempDisplay.linkArray(gyChannels.ElementAt(ch_no - 1));
+                    tempDisplay.ScaleFactor = scaleGY;
                 }
             }            
             return false;
@@ -229,5 +301,6 @@ namespace PendulumApp.ViewModel.OpenGLRender
         {
 
         }
+        
     }
 }

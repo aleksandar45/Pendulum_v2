@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Windows.Threading;
+using System.IO;
 using System.IO.Ports;
+using System.Globalization;
 using PendulumApp.ViewModel;
 using PendulumApp.ViewModel.OpenGLRender;
 
@@ -71,6 +73,9 @@ namespace PendulumApp.DeviceModel
                     mainWindowViewModel.COMConnectionStatus = false;
                     mainWindowViewModel.BLEConnectionStatus = false;
                     mainWindowViewModel.BatteryLowLevel = true;
+                    mainWindowViewModel.AccGy0Status = false;
+                    mainWindowViewModel.AccGy1Status = false;
+                    mainWindowViewModel.EMGStatus = false;
                     mainWindowViewModel.BatteryStatusTextLabel = "Battery: N/A";
                 }
                 else
@@ -88,7 +93,42 @@ namespace PendulumApp.DeviceModel
                 }
                 connected = false;
             }
-           
+            else
+            {
+                string[] ports = SerialPort.GetPortNames();
+
+                if (ports.Length != mainWindowViewModel.ComboBoxCOMPorts.Count)
+                {
+                    List<string>  _comboBoxCOMPorts = new List<string>();                    
+                    foreach (string port in ports)
+                    {
+                        _comboBoxCOMPorts.Add(port);                        
+                    }
+                    mainWindowViewModel.ComboBoxCOMPorts = _comboBoxCOMPorts;
+                    mainWindowViewModel.ComboboxSelectedItem = ports[ports.Length-1];
+                }
+                else
+                {
+                    bool comPortChanged = false;
+                    for (int i = 0; i < ports.Length; i++) {
+                        if (String.Compare(ports[i], mainWindowViewModel.ComboBoxCOMPorts.ElementAt(i)) != 0)
+                        {
+                            comPortChanged = true;
+                        }
+                    }
+                    if (comPortChanged)
+                    {
+                        List<string> _comboBoxCOMPorts = new List<string>();
+                        foreach (string port in ports)
+                        {
+                            _comboBoxCOMPorts.Add(port);
+                        }
+                        mainWindowViewModel.ComboBoxCOMPorts = _comboBoxCOMPorts;
+                        mainWindowViewModel.ComboboxSelectedItem = ports[ports.Length - 1];
+                    }
+                }
+                                
+            }
 
         }
         public void ParseRingBuffers(object sender, EventArgs e) {
@@ -96,10 +136,10 @@ namespace PendulumApp.DeviceModel
             byte[] comBuffer = new byte[8192];
             byte[] tmpBuffer = new byte[100];
             byte[] dataBuffer = new byte[100];
+            MainWindowViewModel mWVM = mainWindowViewModel;
 
             int emgCH1, emgCH2;
-            int x, y, z;
-            int status;
+            int x, y, z;           
             Int32 int32_temp;
             Int16 int16_temp;
 
@@ -151,51 +191,132 @@ namespace PendulumApp.DeviceModel
                                             {
                                                 mainWindowViewModel.COMConnectionStatus = true;
                                             }
+
+                                            if (record)
+                                            {
+                                                recorded_packets.Add(recorded_data.Count);
+                                            }
+
                                             for (int i = 0; i < 30; i += 6)
                                             {
                                                 // channel I                    
                                                 int32_temp = (Int32)(dataBuffer[i] * 65536 + dataBuffer[i + 1] * 256 + dataBuffer[i + 2]);
                                                 if ((int32_temp & 0x800000) == 0x800000)
-                                                    glD.emgChannels.ElementAt(0).intArray[glD.emgIndex] = int32_temp - 16777216;
+                                                {
+                                                    glD.emgChannels.ElementAt(0).intArray[glD.emgIndex] = (int32_temp - 16777216);
+                                                    emgCH1 = (int32_temp - 16777216);
+                                                }
                                                 else
+                                                {
                                                     glD.emgChannels.ElementAt(0).intArray[glD.emgIndex] = int32_temp;
+                                                    emgCH1 = int32_temp;
+                                                }
+
 
                                                 // channel II                    
                                                 int32_temp = (Int32)(dataBuffer[i + 3] * 65536 + dataBuffer[i + 4] * 256 + dataBuffer[i + 5]);
                                                 if ((int32_temp & 0x800000) == 0x800000)
+                                                {
                                                     glD.emgChannels.ElementAt(1).intArray[glD.emgIndex] = int32_temp - 16777216;
+                                                    emgCH2 = int32_temp - 16777216;
+                                                }
                                                 else
+                                                {
                                                     glD.emgChannels.ElementAt(1).intArray[glD.emgIndex] = int32_temp;
+                                                    emgCH2 = int32_temp;
+                                                }
+
+
 
                                                 glD.emgIndex++;
+
+                                                if (record)
+                                                {
+                                                    recorded_data.Add(emgCH1);
+                                                    recorded_data.Add(emgCH2);
+                                                }
                                             }
 
-                                            //ACC0
+                                            //ACC0z
                                             int16_temp = (Int16)(dataBuffer[30] * 256 + dataBuffer[31]);
-                                            glD.accChannels.ElementAt(0).intArray[glD.accIndex] = int16_temp;
+                                            glD.accChannels.ElementAt(0).intArray[glD.accIndex] = int16_temp - mWVM.SettingACCData.OffsetACC0.ElementAt(2);
+                                            z = int16_temp;
+                                            if (record)
+                                            {
+                                                recorded_data.Add(z);
+                                            }
+                                            if (calibrate)
+                                            {
+                                                mWVM.SettingACCData.OffsetACC0.Clear();
+                                                mWVM.SettingACCData.OffsetACC0.Add(0);
+                                                mWVM.SettingACCData.OffsetACC0.Add(0);
+                                                mWVM.SettingACCData.OffsetACC0.Add(z);
+                                            }
 
-                                            //ACC1
+                                            //ACC1z
                                             int16_temp = (Int16)(dataBuffer[32] * 256 + dataBuffer[33]);
-                                            glD.accChannels.ElementAt(1).intArray[glD.accIndex] = int16_temp;
+                                            glD.accChannels.ElementAt(1).intArray[glD.accIndex] = int16_temp - mWVM.SettingACCData.OffsetACC1.ElementAt(2);
+                                            z = int16_temp;
+                                            if (record)
+                                            {
+                                                recorded_data.Add(z);
+                                            }
+                                            if (calibrate)
+                                            {
+                                                mWVM.SettingACCData.OffsetACC1.Clear();
+                                                mWVM.SettingACCData.OffsetACC1.Add(0);
+                                                mWVM.SettingACCData.OffsetACC1.Add(0);
+                                                mWVM.SettingACCData.OffsetACC1.Add(z);
+                                            }
 
                                             glD.accIndex++;
 
-                                            //GY0_0
+                                            //GY0_0 (x)
                                             int16_temp = (Int16)(dataBuffer[34] * 256 + dataBuffer[35]);
-                                            glD.gyChannels.ElementAt(0).intArray[glD.gyIndex] = int16_temp;
+                                            glD.gyChannels.ElementAt(0).intArray[glD.gyIndex] = int16_temp - mWVM.SettingGYData.OffsetGY0.ElementAt(0);
+                                            x = int16_temp;
+                                            if (record)
+                                            {
+                                                recorded_data.Add(x);
+                                            }
 
-                                            //GY0_1
+                                            //GY0_1 (y)
                                             int16_temp = (Int16)(dataBuffer[36] * 256 + dataBuffer[37]);
-                                            glD.gyChannels.ElementAt(1).intArray[glD.gyIndex] = int16_temp;
+                                            glD.gyChannels.ElementAt(1).intArray[glD.gyIndex] = int16_temp - mWVM.SettingGYData.OffsetGY0.ElementAt(1);
+                                            y = int16_temp;
+                                            if (record)
+                                            {
+                                                recorded_data.Add(y);
+                                            }
+                                            if (calibrate)
+                                            {
+                                                mWVM.SettingGYData.OffsetGY0.Clear();
+                                                mWVM.SettingGYData.OffsetGY0.Add(x);
+                                                mWVM.SettingGYData.OffsetGY0.Add(y);
+                                                mWVM.SettingGYData.OffsetGY0.Add(0);
+                                            }
 
-                                            //GY1
+                                            //GY1 (x)
                                             int16_temp = (Int16)(dataBuffer[38] * 256 + dataBuffer[39]);
-                                            glD.gyChannels.ElementAt(2).intArray[glD.gyIndex] = int16_temp;
+                                            glD.gyChannels.ElementAt(2).intArray[glD.gyIndex] = int16_temp - mWVM.SettingGYData.OffsetGY1.ElementAt(0);
+                                            x = int16_temp;
+                                            if (record)
+                                            {
+                                                recorded_data.Add(x);
+                                            }
+                                            if (calibrate)
+                                            {
+                                                mWVM.SettingGYData.OffsetGY1.Clear();
+                                                mWVM.SettingGYData.OffsetGY1.Add(x);
+                                                mWVM.SettingGYData.OffsetGY1.Add(0);
+                                                mWVM.SettingGYData.OffsetGY1.Add(0);
+                                                calibrate = false;
+                                            }
 
                                             glD.gyIndex++;
 
                                             //BATT
-                                            batteryValue = (Int16)(dataBuffer[40] * 256 + dataBuffer[41]);                                            
+                                            batteryValue = (Int16)(dataBuffer[40] * 256 + dataBuffer[41]);
 
                                             if (((dataBuffer[42] & 0x01) == 0x01) && (mainWindowViewModel.AccGy0Status == true))
                                             {
@@ -224,18 +345,32 @@ namespace PendulumApp.DeviceModel
                                             {
                                                 mainWindowViewModel.EMGStatus = true;
                                             }
-                                            if (((dataBuffer[43] & 0x01) == 0x01) && (mainWindowViewModel.BLEConnectionStatus == false))
+                                            if (mainWindowViewModel.BLEConnectionStatus == false)
                                             {
                                                 mainWindowViewModel.BLEConnectionStatus = true;
 
                                             }
-                                            else if (((dataBuffer[43] & 0x01) == 0x00) && (mainWindowViewModel.BLEConnectionStatus == true))
-                                            {
-                                                mainWindowViewModel.BLEConnectionStatus = false;
-                                            }
+                                           
 
                                         }
 
+                                    }
+                                    if ((tmpBuffer[0] == 'I') && (tmpBuffer[1] == 44))     // 
+                                    {
+                                        comPortRB.Read(tmpBuffer, 44);
+                                        comPortRB.Read(tmpBuffer, 3);
+                                        if ((tmpBuffer[0] == 'E') && (tmpBuffer[1] == 'N') && (tmpBuffer[2] == 'D'))
+                                        {
+                                            connected = true;
+                                            if (mainWindowViewModel.COMConnectionStatus == false)
+                                            {
+                                                mainWindowViewModel.COMConnectionStatus = true;
+                                            }
+                                            if (mainWindowViewModel.BLEConnectionStatus == true)
+                                            {
+                                                mainWindowViewModel.BLEConnectionStatus = false;
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -263,6 +398,12 @@ namespace PendulumApp.DeviceModel
                 {
                     mainWindowViewModel.ComboboxCOMPortsIsEnabled = true;
                     mainWindowViewModel.COMConnectionStatus = false;
+                    mainWindowViewModel.BLEConnectionStatus = false;
+                    mainWindowViewModel.BatteryLowLevel = true;
+                    mainWindowViewModel.AccGy0Status = false;
+                    mainWindowViewModel.AccGy1Status = false;
+                    mainWindowViewModel.EMGStatus = false;
+                    mainWindowViewModel.BatteryStatusTextLabel = "Battery: N/A";
                     if (comPort.IsOpen())
                     {
                         byte[] b = new byte[3];
@@ -332,7 +473,8 @@ namespace PendulumApp.DeviceModel
                 if (recording)
                 {
                     counter = 0;
-                    record = false;
+                    record = false;                   
+                    SaveData();
                     recorded_packets.Clear();
                 }
                 else
@@ -351,6 +493,98 @@ namespace PendulumApp.DeviceModel
                 Dialogs.DialogService.DialogResult result = Dialogs.DialogService.DialogService.OpenDialog(dvm);
                 return false;
             }
+        }
+        private void SaveData()
+        {
+            try
+            {
+                MainWindowViewModel mWVM = mainWindowViewModel;
+                string saveFileName = string.Format("{0:yyyy-MM-dd_HH-mm-ss}", DateTime.Now);
+                string savePath = mainWindowViewModel.SettingProgramData.SavePath;
+
+                Dialogs.DialogService.DialogViewModelBase vm = new Dialogs.DialogSaveFile.DialogSaveFileViewModel(savePath, saveFileName);
+                Dialogs.DialogService.DialogResult result = Dialogs.DialogService.DialogService.OpenDialog(vm);
+                Dialogs.DialogSaveFile.DialogResultSaveFile saveFileResult = result as Dialogs.DialogSaveFile.DialogResultSaveFile;
+
+                saveFileName = saveFileResult.FileName + ".txt";
+                //Stream myStream;
+                /* SaveFileDialog saveFileDialog1 = new SaveFileDialog();
+
+                 saveFileDialog1.Filter = "txt files (*.txt)|*.txt";
+                 saveFileDialog1.FilterIndex = 2;
+                 saveFileDialog1.RestoreDirectory = true;*/
+                if (saveFileResult.OKClicked)
+                {
+
+                    if (!savePath.EndsWith("\\")) savePath += "\\";
+                    string directoryName = string.Format("{0:yyyy-MM-dd}", DateTime.Now);
+                    if (!Directory.Exists(savePath + directoryName))
+                    {
+                        Directory.CreateDirectory(savePath + directoryName);
+                    }
+                    savePath = savePath + directoryName + "\\";
+
+
+                   
+                    using (StreamWriter writer = new StreamWriter(savePath + saveFileName)) //myStream = saveFileDialog1.OpenFile()) != null)
+                    {
+                        Int32 index;
+                        String line;
+                        int i, j;
+
+                        int  ACC0z,  ACC1z, GY0x, GY0y, GY1x;
+
+                        line = String.Format("EMG_CH1    EMG_CH2    ACC0z(thigh/sagital)    ACC1z(shank/sagital)    GY0x(thigh/sagital)    GY0y(thigh/frontal)    GY1x(shank/sagital)    \n");
+                        writer.WriteLine(line);
+                        line = String.Format("EMG_CH1    EMG_CH2    ACC0z    ACC1z    GY0x    GY0y    GY1x    \n");
+                        writer.WriteLine(line);
+                        for (i = 0; i < recorded_packets.Count; i++)
+                        {
+                            index = recorded_packets.ElementAt(i);
+
+                            index = index + 5 * 2;
+                            ACC0z = recorded_data.ElementAt(index + 0);
+                            ACC1z = recorded_data.ElementAt(index + 1);
+
+                            GY0x = recorded_data.ElementAt(index + 2);
+                            GY0y = recorded_data.ElementAt(index + 3);                            
+                            GY1x = recorded_data.ElementAt(index + 4);                            
+
+
+                            index = recorded_packets.ElementAt(i);
+                            var culture = (CultureInfo)CultureInfo.CurrentCulture.Clone();
+                            culture.NumberFormat.NumberDecimalSeparator = ".";
+                            for (j = 0; j < 5; j++)
+                            {
+                                if (mainWindowViewModel.SettingProgramData.FloatSaveFormat)
+                                {
+                                    line = String.Format(new CultureInfo("en-GB"), "{0:#0.####}   {1:#0.####}    {2:#0.####}    {3:#0.##}    {4:#0.##}    {5:#0.####}    {6:#0.####}    ",
+                                    recorded_data.ElementAt(index + j * 2) / (float) mWVM.SettingEMGData.Scale, recorded_data.ElementAt(index + j * 2 + 1) / (float) mWVM.SettingEMGData.Scale, ACC0z / (float) mWVM.SettingACCData.Scale, ACC1z / (float)mWVM.SettingACCData.Scale, GY0x / (float) mWVM.SettingGYData.Scale, GY0y / (float) mWVM.SettingGYData.Scale, GY1x / (float) mWVM.SettingGYData.Scale);
+                                }
+                                else
+                                {
+                                    line = String.Format("{0}    {1}    {2}    {3}    {4}    {5}    {6}",
+                                    recorded_data.ElementAt(index + j * 2), recorded_data.ElementAt(index + j * 2 + 1), ACC0z, ACC1z, GY0x, GY0y, GY1x);
+                                }
+
+                                writer.WriteLine(line);
+                            }
+                        }
+                        writer.Close();
+                    }
+                   
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Log log = new Log();
+                log.LogMessageToFile(TAG + "SaveData:" + ex.Message);
+                Dialogs.DialogMessage.DialogMessageViewModel dvm = new Dialogs.DialogMessage.DialogMessageViewModel(Dialogs.DialogMessage.DialogImageTypeEnum.Error, ex.Message);
+                Dialogs.DialogService.DialogResult result = Dialogs.DialogService.DialogService.OpenDialog(dvm);
+            }
+            
+
         }
         public bool Calibrate()
         {
@@ -391,7 +625,9 @@ namespace PendulumApp.DeviceModel
 
         public void dispose(object sender, EventArgs e)
         {
-
+            if (mainWindowViewModel.Playing) {
+                StartStopPlaying(true);
+            }
         }
     }
 }

@@ -38,7 +38,6 @@ namespace PendulumApp.ViewModel.OpenGLRender
         //float rotation = 0.0f;
         float r, g, b;
         float dx;
-        float scale_factor = 1.0f;
         float previous_data_float;
         int iterator = 0;
         int max_y = -16777216;
@@ -48,6 +47,27 @@ namespace PendulumApp.ViewModel.OpenGLRender
         //int previous_y = 0;
         int iterator_max = 0;
         int iterator_min = 0;
+
+        public float ScaleFactor
+        {
+            get;
+            set;
+        }
+        public bool AutoZoom
+        {
+            get;
+            set;
+        }
+        public double YMax
+        {
+            get;
+            set;
+        }
+        public double YMin
+        {
+            get;
+            set;
+        }
 
         public OpenGlDisplay(OpenGLControl openGLControl, float r, float g, float b)
         {        
@@ -69,7 +89,9 @@ namespace PendulumApp.ViewModel.OpenGLRender
         {
 
             if (visible)
-            {           
+            {
+                
+
                 //  Get the OpenGL object.
                 OpenGL gl = openGLControl.OpenGL;
 
@@ -77,22 +99,31 @@ namespace PendulumApp.ViewModel.OpenGLRender
                 double temp_max = 0.0;
                 double temp_min = 0.0;
 
-                if (iterator > (array.index + 300))
+                if (AutoZoom)
                 {
+                    if (iterator > (array.index + 300))
+                    {
 
-                    temp_max = max_y + (max_y - min_y) * 0.1;
-                    max_y_current = (int)temp_max;
-                    temp_min = min_y - (max_y - min_y) * 0.1;
-                    min_y_current = (int)temp_min;
-                    max_y = -16777216;
-                    min_y = 16777216;
+                        temp_max = max_y + (max_y - min_y) * 0.1;
+                        max_y_current = (int)temp_max;
+                        temp_min = min_y - (max_y - min_y) * 0.1;
+                        min_y_current = (int)temp_min;
+                        max_y = -16777216;
+                        min_y = 16777216;
+                    }
                 }
+                else
+                {
+                    max_y_current = (int) (YMax * ScaleFactor);
+                    min_y_current = (int) (YMin * ScaleFactor);
+                }
+                
                 iterator = array.index;
 
                 gl.Clear(OpenGL.GL_COLOR_BUFFER_BIT | OpenGL.GL_DEPTH_BUFFER_BIT);                      //  Clear the color and depth buffer.
-                gl.DrawText(0, (int)(0.1428 * gl.RenderContextProvider.Height), 0.0f, 0f, 0f, null, 9f, string.Format("{0:#0.##}", (float)min_y_current / scale_factor));
-                gl.DrawText(0, (int)(0.857 * gl.RenderContextProvider.Height), 0.0f, 0f, 0f, null, 9f, string.Format("{0:#0.##}", (float)max_y_current / scale_factor));
-                gl.DrawText(0, (int)(0.5 * gl.RenderContextProvider.Height), 0.0f, 0f, 0f, null, 9f, string.Format("{0:#0.##}", (float)(min_y_current + max_y_current) / (scale_factor * 2.0)));
+                gl.DrawText(0, (int)(0.1428 * gl.RenderContextProvider.Height), 0.0f, 0f, 0f, null, 9f, string.Format("{0:#0.##}", (float)min_y_current / ScaleFactor));
+                gl.DrawText(0, (int)(0.857 * gl.RenderContextProvider.Height), 0.0f, 0f, 0f, null, 9f, string.Format("{0:#0.##}", (float)max_y_current / ScaleFactor));
+                gl.DrawText(0, (int)(0.5 * gl.RenderContextProvider.Height), 0.0f, 0f, 0f, null, 9f, string.Format("{0:#0.##}", (float)(min_y_current + max_y_current) / (ScaleFactor * 2.0)));
 
 
 
@@ -177,6 +208,7 @@ namespace PendulumApp.ViewModel.OpenGLRender
                 gl.End();
                 gl.Flush();
                 openGLControl.InvalidateArrange();
+                
                 
             }
             // }

@@ -3,10 +3,18 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:PendulumApp"
              xmlns:dialogMessage="clr-namespace:PendulumApp.Dialogs.DialogMessage" 
+             xmlns:dialogSetAxis="clr-namespace:PendulumApp.Dialogs.DialogSetAxis" 
+             xmlns:dialogSaveFile="clr-namespace:PendulumApp.Dialogs.DialogSaveFile" 
              StartupUri="View/MainWindowView.xaml">
     <Application.Resources>
         <DataTemplate DataType="{x:Type dialogMessage:DialogMessageViewModel}">
             <dialogMessage:DialogMessageView></dialogMessage:DialogMessageView>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type dialogSetAxis:DialogSetAxisViewModel}">
+            <dialogSetAxis:DialogSetAxisView></dialogSetAxis:DialogSetAxisView>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type dialogSaveFile:DialogSaveFileViewModel}">
+            <dialogSaveFile:DialogSaveFileView></dialogSaveFile:DialogSaveFileView>
         </DataTemplate>
     </Application.Resources>
 </Application>
