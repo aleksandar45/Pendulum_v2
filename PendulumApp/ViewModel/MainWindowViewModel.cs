@@ -723,8 +723,8 @@ namespace PendulumApp.ViewModel
 
                     LabelDisplay1Tittle = "EMG1 (mV)";
                     LabelDisplay2Tittle = "EMG2 (mV)";
-                    LabelDisplay3Tittle = "ACC Thigh/Sagital (m/s^2)";
-                    LabelDisplay4Tittle = "ACC Shank/Sagital (m/s^2)";
+                    LabelDisplay3Tittle = "ACC Thigh/Transverse (m/s^2)";
+                    LabelDisplay4Tittle = "ACC Shank/Transverse (m/s^2)";
                     LabelDisplay5Tittle = "";
                     LabelDisplay6Tittle = "";
                     
@@ -772,8 +772,8 @@ namespace PendulumApp.ViewModel
                     ButtonSetAxis6IsEnabled = false;
 
                     LabelDisplay1Tittle = "GY Thigh/Sagital (rad/s)";
-                    LabelDisplay2Tittle = "GY Thigh/Frontal (rad/s)";
-                    LabelDisplay3Tittle = "GY Shank/Sagital (rad/s)";
+                    LabelDisplay2Tittle = "GY Shank/Sagital (rad/s)";
+                    LabelDisplay3Tittle = "GY Shank/Transverse (rad/s)";
                     LabelDisplay4Tittle = "";
                     LabelDisplay5Tittle = "";
                     LabelDisplay6Tittle = "";

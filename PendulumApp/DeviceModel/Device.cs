@@ -237,53 +237,44 @@ namespace PendulumApp.DeviceModel
                                                 }
                                             }
 
-                                            //ACC0z
+                                            //ACC0x
                                             int16_temp = (Int16)(dataBuffer[30] * 256 + dataBuffer[31]);
-                                            glD.accChannels.ElementAt(0).intArray[glD.accIndex] = int16_temp - mWVM.SettingACCData.OffsetACC0.ElementAt(2);
-                                            z = int16_temp;
+                                            glD.accChannels.ElementAt(0).intArray[glD.accIndex] = int16_temp - mWVM.SettingACCData.OffsetACC0.ElementAt(0);
+                                            x = int16_temp - mWVM.SettingACCData.OffsetACC0.ElementAt(0);
                                             if (record)
                                             {
-                                                recorded_data.Add(z);
+                                                recorded_data.Add(x);
                                             }
                                             if (calibrate)
                                             {
                                                 mWVM.SettingACCData.OffsetACC0.Clear();
+                                                mWVM.SettingACCData.OffsetACC0.Add(x);
                                                 mWVM.SettingACCData.OffsetACC0.Add(0);
                                                 mWVM.SettingACCData.OffsetACC0.Add(0);
-                                                mWVM.SettingACCData.OffsetACC0.Add(z);
                                             }
 
-                                            //ACC1z
+                                            //ACC1y
                                             int16_temp = (Int16)(dataBuffer[32] * 256 + dataBuffer[33]);
-                                            glD.accChannels.ElementAt(1).intArray[glD.accIndex] = int16_temp - mWVM.SettingACCData.OffsetACC1.ElementAt(2);
-                                            z = int16_temp;
+                                            glD.accChannels.ElementAt(1).intArray[glD.accIndex] = int16_temp - mWVM.SettingACCData.OffsetACC1.ElementAt(1);
+                                            y = int16_temp - mWVM.SettingACCData.OffsetACC1.ElementAt(1);
                                             if (record)
                                             {
-                                                recorded_data.Add(z);
+                                                recorded_data.Add(y);
                                             }
                                             if (calibrate)
                                             {
                                                 mWVM.SettingACCData.OffsetACC1.Clear();
                                                 mWVM.SettingACCData.OffsetACC1.Add(0);
+                                                mWVM.SettingACCData.OffsetACC1.Add(y);
                                                 mWVM.SettingACCData.OffsetACC1.Add(0);
-                                                mWVM.SettingACCData.OffsetACC1.Add(z);
                                             }
 
                                             glD.accIndex++;
 
-                                            //GY0_0 (x)
+                                            //GY0 (y)
                                             int16_temp = (Int16)(dataBuffer[34] * 256 + dataBuffer[35]);
-                                            glD.gyChannels.ElementAt(0).intArray[glD.gyIndex] = int16_temp - mWVM.SettingGYData.OffsetGY0.ElementAt(0);
-                                            x = int16_temp;
-                                            if (record)
-                                            {
-                                                recorded_data.Add(x);
-                                            }
-
-                                            //GY0_1 (y)
-                                            int16_temp = (Int16)(dataBuffer[36] * 256 + dataBuffer[37]);
-                                            glD.gyChannels.ElementAt(1).intArray[glD.gyIndex] = int16_temp - mWVM.SettingGYData.OffsetGY0.ElementAt(1);
-                                            y = int16_temp;
+                                            glD.gyChannels.ElementAt(0).intArray[glD.gyIndex] = int16_temp - mWVM.SettingGYData.OffsetGY0.ElementAt(1);
+                                            y = int16_temp - mWVM.SettingGYData.OffsetGY0.ElementAt(1);
                                             if (record)
                                             {
                                                 recorded_data.Add(y);
@@ -291,25 +282,34 @@ namespace PendulumApp.DeviceModel
                                             if (calibrate)
                                             {
                                                 mWVM.SettingGYData.OffsetGY0.Clear();
-                                                mWVM.SettingGYData.OffsetGY0.Add(x);
+                                                mWVM.SettingGYData.OffsetGY0.Add(0);
                                                 mWVM.SettingGYData.OffsetGY0.Add(y);
                                                 mWVM.SettingGYData.OffsetGY0.Add(0);
                                             }
 
-                                            //GY1 (x)
-                                            int16_temp = (Int16)(dataBuffer[38] * 256 + dataBuffer[39]);
-                                            glD.gyChannels.ElementAt(2).intArray[glD.gyIndex] = int16_temp - mWVM.SettingGYData.OffsetGY1.ElementAt(0);
-                                            x = int16_temp;
+                                            //GY1_0 (x)
+                                            int16_temp = (Int16)(dataBuffer[36] * 256 + dataBuffer[37]);
+                                            glD.gyChannels.ElementAt(1).intArray[glD.gyIndex] = int16_temp - mWVM.SettingGYData.OffsetGY1.ElementAt(0);
+                                            x = int16_temp - mWVM.SettingGYData.OffsetGY1.ElementAt(0);
                                             if (record)
                                             {
                                                 recorded_data.Add(x);
+                                            }                                           
+
+                                            //GY1_1 (z)
+                                            int16_temp = (Int16)(dataBuffer[38] * 256 + dataBuffer[39]);
+                                            glD.gyChannels.ElementAt(2).intArray[glD.gyIndex] = int16_temp - mWVM.SettingGYData.OffsetGY1.ElementAt(2);
+                                            z = int16_temp - mWVM.SettingGYData.OffsetGY1.ElementAt(2);
+                                            if (record)
+                                            {
+                                                recorded_data.Add(z);
                                             }
                                             if (calibrate)
                                             {
                                                 mWVM.SettingGYData.OffsetGY1.Clear();
                                                 mWVM.SettingGYData.OffsetGY1.Add(x);
                                                 mWVM.SettingGYData.OffsetGY1.Add(0);
-                                                mWVM.SettingGYData.OffsetGY1.Add(0);
+                                                mWVM.SettingGYData.OffsetGY1.Add(z);
                                                 calibrate = false;
                                             }
 
@@ -532,23 +532,23 @@ namespace PendulumApp.DeviceModel
                         String line;
                         int i, j;
 
-                        int  ACC0z,  ACC1z, GY0x, GY0y, GY1x;
+                        int  ACC0x,  ACC1y, GY0y, GY1x, GY1z;
 
-                        line = String.Format("EMG_CH1    EMG_CH2    ACC0z(thigh/sagital)    ACC1z(shank/sagital)    GY0x(thigh/sagital)    GY0y(thigh/frontal)    GY1x(shank/sagital)    \n");
+                        line = String.Format("EMG_CH1    EMG_CH2    ACC0x(thigh/transverse)    ACC1y(shank/transverse)    GY0y(thigh/sagital)    GY1x(shank/sagital)    GY1z(shank/transverse)    \n");
                         writer.WriteLine(line);
-                        line = String.Format("EMG_CH1    EMG_CH2    ACC0z    ACC1z    GY0x    GY0y    GY1x    \n");
+                        line = String.Format("EMG_CH1    EMG_CH2    ACC0x    ACC1y    GY0y    GY1x    GY1z    \n");
                         writer.WriteLine(line);
                         for (i = 0; i < recorded_packets.Count; i++)
                         {
                             index = recorded_packets.ElementAt(i);
 
                             index = index + 5 * 2;
-                            ACC0z = recorded_data.ElementAt(index + 0);
-                            ACC1z = recorded_data.ElementAt(index + 1);
+                            ACC0x = recorded_data.ElementAt(index + 0);
+                            ACC1y = recorded_data.ElementAt(index + 1);
 
-                            GY0x = recorded_data.ElementAt(index + 2);
-                            GY0y = recorded_data.ElementAt(index + 3);                            
-                            GY1x = recorded_data.ElementAt(index + 4);                            
+                            GY0y = recorded_data.ElementAt(index + 2);
+                            GY1x = recorded_data.ElementAt(index + 3);
+                            GY1z = recorded_data.ElementAt(index + 4);                            
 
 
                             index = recorded_packets.ElementAt(i);
@@ -559,12 +559,12 @@ namespace PendulumApp.DeviceModel
                                 if (mainWindowViewModel.SettingProgramData.FloatSaveFormat)
                                 {
                                     line = String.Format(new CultureInfo("en-GB"), "{0:#0.####}   {1:#0.####}    {2:#0.####}    {3:#0.##}    {4:#0.##}    {5:#0.####}    {6:#0.####}    ",
-                                    recorded_data.ElementAt(index + j * 2) / (float) mWVM.SettingEMGData.Scale, recorded_data.ElementAt(index + j * 2 + 1) / (float) mWVM.SettingEMGData.Scale, ACC0z / (float) mWVM.SettingACCData.Scale, ACC1z / (float)mWVM.SettingACCData.Scale, GY0x / (float) mWVM.SettingGYData.Scale, GY0y / (float) mWVM.SettingGYData.Scale, GY1x / (float) mWVM.SettingGYData.Scale);
+                                    recorded_data.ElementAt(index + j * 2) / (float) mWVM.SettingEMGData.Scale, recorded_data.ElementAt(index + j * 2 + 1) / (float) mWVM.SettingEMGData.Scale, ACC0x / (float) mWVM.SettingACCData.Scale, ACC1y / (float)mWVM.SettingACCData.Scale, GY0y / (float) mWVM.SettingGYData.Scale, GY1x / (float) mWVM.SettingGYData.Scale, GY1z / (float) mWVM.SettingGYData.Scale);
                                 }
                                 else
                                 {
                                     line = String.Format("{0}    {1}    {2}    {3}    {4}    {5}    {6}",
-                                    recorded_data.ElementAt(index + j * 2), recorded_data.ElementAt(index + j * 2 + 1), ACC0z, ACC1z, GY0x, GY0y, GY1x);
+                                    recorded_data.ElementAt(index + j * 2), recorded_data.ElementAt(index + j * 2 + 1), ACC0x, ACC1y, GY0y, GY1x, GY1z);
                                 }
 
                                 writer.WriteLine(line);
