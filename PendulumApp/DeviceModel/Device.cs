@@ -142,6 +142,7 @@ namespace PendulumApp.DeviceModel
             int x, y, z;           
             Int32 int32_temp;
             Int16 int16_temp;
+            Int16 int16_tempAdd;
 
             try
             {
@@ -248,7 +249,7 @@ namespace PendulumApp.DeviceModel
                                             if (calibrate)
                                             {
                                                 mWVM.SettingACCData.OffsetACC0.Clear();
-                                                mWVM.SettingACCData.OffsetACC0.Add(x);
+                                                mWVM.SettingACCData.OffsetACC0.Add(int16_temp);
                                                 mWVM.SettingACCData.OffsetACC0.Add(0);
                                                 mWVM.SettingACCData.OffsetACC0.Add(0);
                                             }
@@ -265,7 +266,7 @@ namespace PendulumApp.DeviceModel
                                             {
                                                 mWVM.SettingACCData.OffsetACC1.Clear();
                                                 mWVM.SettingACCData.OffsetACC1.Add(0);
-                                                mWVM.SettingACCData.OffsetACC1.Add(y);
+                                                mWVM.SettingACCData.OffsetACC1.Add(int16_temp);
                                                 mWVM.SettingACCData.OffsetACC1.Add(0);
                                             }
 
@@ -283,7 +284,7 @@ namespace PendulumApp.DeviceModel
                                             {
                                                 mWVM.SettingGYData.OffsetGY0.Clear();
                                                 mWVM.SettingGYData.OffsetGY0.Add(0);
-                                                mWVM.SettingGYData.OffsetGY0.Add(y);
+                                                mWVM.SettingGYData.OffsetGY0.Add(int16_temp);
                                                 mWVM.SettingGYData.OffsetGY0.Add(0);
                                             }
 
@@ -294,12 +295,12 @@ namespace PendulumApp.DeviceModel
                                             if (record)
                                             {
                                                 recorded_data.Add(x);
-                                            }                                           
+                                            }
 
                                             //GY1_1 (z)
-                                            int16_temp = (Int16)(dataBuffer[38] * 256 + dataBuffer[39]);
-                                            glD.gyChannels.ElementAt(2).intArray[glD.gyIndex] = int16_temp - mWVM.SettingGYData.OffsetGY1.ElementAt(2);
-                                            z = int16_temp - mWVM.SettingGYData.OffsetGY1.ElementAt(2);
+                                            int16_tempAdd = (Int16)(dataBuffer[38] * 256 + dataBuffer[39]);
+                                            glD.gyChannels.ElementAt(2).intArray[glD.gyIndex] = int16_tempAdd - mWVM.SettingGYData.OffsetGY1.ElementAt(2);
+                                            z = int16_tempAdd - mWVM.SettingGYData.OffsetGY1.ElementAt(2);
                                             if (record)
                                             {
                                                 recorded_data.Add(z);
@@ -307,9 +308,9 @@ namespace PendulumApp.DeviceModel
                                             if (calibrate)
                                             {
                                                 mWVM.SettingGYData.OffsetGY1.Clear();
-                                                mWVM.SettingGYData.OffsetGY1.Add(x);
+                                                mWVM.SettingGYData.OffsetGY1.Add(int16_temp);
                                                 mWVM.SettingGYData.OffsetGY1.Add(0);
-                                                mWVM.SettingGYData.OffsetGY1.Add(z);
+                                                mWVM.SettingGYData.OffsetGY1.Add(int16_tempAdd);
                                                 calibrate = false;
                                             }
 
